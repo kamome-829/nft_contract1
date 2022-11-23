@@ -9,7 +9,7 @@ contract TokenBank{
     string private _symbol;
 
     /// @dev Tokenの総供給数
-    uint256 constant _totalSupply = 100;
+    uint256 constant _totalSupply = 1000;
 
     /// @dev TokenBankが預かっているTokenの総額
     uint256 private _bankTotalDeposit;
@@ -67,5 +67,27 @@ contract TokenBank{
     /// @dev 指定アカウントアドレスのToken残高を返す
     function balanceOf (address acount) public view returns (uint256){
         return _balances[acount];
+    }
+
+    /// @dev Tokenを移転する
+    function transfer (address to, uint256 amount) public {
+        address from = msg.sender;
+        _transfer(from, to, amount);
+    }
+
+    /// @dev Tokenを移転する
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal {
+        require(to != address(0), "Zero address cannot be specified for 'to'!");
+        uint256 fromBalance = _balances[from];
+
+        require(fromBalance >= amount, "Insufficient balance!");
+
+        _balances[from] = fromBalance - amount;
+        _balances[to] += amount;
+        emit TokenTransfer(from, to, amount);
     }
 }
