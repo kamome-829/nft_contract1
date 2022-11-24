@@ -90,4 +90,38 @@ contract TokenBank{
         _balances[to] += amount;
         emit TokenTransfer(from, to, amount);
     }
+
+    /// @dev TokenBankが預かっているToken残高
+    function bankTotalDeposit() public view returns(uint256){
+        return _bankTotalDeposit;
+    }
+
+    /// @dev TokenBankが預かっている指定のアカウントアドレスのTokenの総額を返す
+    function bankBalanceOf(address account) public view returns(uint256){
+        return _tokenBankBalances[account];
+    }
+
+    /// @dev Tokenを預ける
+    function deposit(uint256 amount) public {
+        address from = msg.sender;
+        address to = owner;
+
+        _transfer(from, to, amount);
+
+        _tokenBankBalances[from] += amount;
+        _bankTotalDeposit += amount;
+        emit TokenDeposit(from, amount);
+    }
+
+    /// @dev Tokenを引き出す
+    function withdraw(uint256 amount) public{
+        address to = msg.sender;
+        address from = owner;
+        uint256 toTokenBankBalance = _tokenBankBalances[to];
+        require(toTokenBankBalance >= amount, "An amount greeter than your tokenBank balance!");
+        _transfer(from, to, amount);
+        _tokenBankBalances[to] -= amount;
+        _bankTotalDeposit -= amount;
+        emit TokenWithdraw(to, amount);
+    }
 }
